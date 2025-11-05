@@ -5,6 +5,7 @@ import Category from "./Components/Category";
 import Topdestination from "./Components/Topdestination";
 import Aboutus from "./Components/Aboutus";
 import Testimonials from "./Components/Testimonials";
+import Sponser from "./Components/Sponser";
 
 const Homepage: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const Homepage: React.FC = () => {
       <Topdestination />
       <Aboutus />
       <Testimonials />
+      <Sponser />
 
      
     </div>
