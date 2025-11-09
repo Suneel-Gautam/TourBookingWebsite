@@ -33,15 +33,19 @@ export const authentication = {
         password: hashPassword,
       });
 
+      const { password: _password, ...datawithoutPassword } =
+        newuser.toObject();
+
       res
         .status(201)
-        .json({ message: "User Created Sucessfully!!", data: newuser });
+        .json({
+          message: "User Created Sucessfully!!",
+          data: datawithoutPassword,
+        });
     } catch (error) {
       res.status(500).json({ message: "Internal Server Error", error });
     }
   },
-  
-  userLogin : async(req : Request , res : Response) => {
 
-  }
+  userLogin: async (req: Request, res: Response) => {},
 };
