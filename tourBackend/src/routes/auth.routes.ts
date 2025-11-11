@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authentication } from "../controllers/auth.controller.ts";
 import { authenticationValidation } from "../middlewares/auth.middleware.ts";
+import { protectedRoute } from "../middlewares/jwtVerify.ts";
 
 const router = Router();
 
@@ -15,9 +16,8 @@ router.post(
   authenticationValidation.userLoginValidation,
   authentication.userLogin
 );
-router.get(
-  "/user",
-  authentication.getUser
-);
+router.post("/logout", authentication.logout);
+router.get("/me", protectedRoute, authentication.getme);
+router.get("/user", protectedRoute, authentication.getUser);
 
 export default router;

@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import { json, type Request, type Response } from "express";
 import { User } from "../models/user.model.ts";
 import bcrypt from "bcryptjs";
 import { jwtTokenGenerator } from "../utils/jwtToken.ts";
@@ -46,6 +46,13 @@ export const authentication = {
         phonenumber: savedUser?.phonenumber as string,
       });
 
+      res.cookie("token", token, {
+        httpOnly: true, // JS cannot access it
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        sameSite: "strict", // protects against CSRF
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
       res.status(201).json({
         message: "User Created Sucessfullyyyyy!!",
         data: datawithoutPassword,
@@ -60,37 +67,91 @@ export const authentication = {
   },
 
   userLogin: async (req: Request, res: Response) => {
-    const { phonenumber, password } = req.body;
+    try {
+      const { phonenumber, password } = req.body;
 
-    //check number is logined or not
+      //check number is logined or not
 
-    const exisitingPhoneNumber = await User.findOne({ phonenumber });
+      const exisitingPhoneNumber = await User.findOne({ phonenumber });
 
-    if (!exisitingPhoneNumber) {
-      return res
-        .status(400)
-        .json({ message: "Invalid PhoneNumber and Password!!" });
+      if (!exisitingPhoneNumber) {
+        return res
+          .status(400)
+          .json({ message: "Invalid PhoneNumber and Password!!" });
+      }
+
+      const checkPassword = bcrypt.compareSync(
+        password,
+        exisitingPhoneNumber.password
+      );
+
+      if (!checkPassword) {
+        return res
+          .status(400)
+          .json({ message: "Invalid PhoneNumber and Password!!" });
+      }
+
+      const token = jwtTokenGenerator({
+        id: String(exisitingPhoneNumber?._id),
+        name: exisitingPhoneNumber?.name as string,
+        email: exisitingPhoneNumber?.email as string,
+        phonenumber: exisitingPhoneNumber?.phonenumber as string,
+      });
+      res.cookie("token", token, {
+        httpOnly: true, // JS cannot access it
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        sameSite: "strict", // protects against CSRF
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.status(200).json({ message: "Login sucessfully", token });
+    } catch (error) {
+      res.status(500).json({
+        message: "Internal Server Error",
+        error: (error as Error).message,
+      });
     }
+  },
 
-    const checkPassword = bcrypt.compareSync(
-      password,
-      exisitingPhoneNumber.password
-    );
+  getme: async (req: Request, res: Response) => {
+    try {
+      const userData = req.user as { id: string };
 
-    if (!checkPassword) {
-      return res
-        .status(400)
-        .json({ message: "Invalid PhoneNumber and Password!!" });
+      if (!userData || !userData.id) {
+        res.status(401).json({ message: "UnAuthorizedd!!!" });
+      }
+      const user = await User.findById(userData.id).select("-password");
+
+      if (!user) {
+        res.status(400).json({ message: "User not Found" });
+      }
+      return res.status(200).json({
+        message: "User fetched successfully",
+        user,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Internal Server Error",
+        error: (error as Error).message,
+      });
     }
+  },
 
-    const token = jwtTokenGenerator({
-      id: String(exisitingPhoneNumber?._id),
-      name: exisitingPhoneNumber?.name as string,
-      email: exisitingPhoneNumber?.email as string,
-      phonenumber: exisitingPhoneNumber?.phonenumber as string,
-    });
+  logout: async (req: Request, res: Response) => {
+    try {
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
 
-    res.status(200).json({ message: "Login sucessfully", token });
+      res.status(200).json({ message: "Logout Sucessfully!!!!" });
+    } catch (error) {
+      res.status(500).json({
+        message: "Internal Server Error",
+        error: (error as Error).message,
+      });
+    }
   },
 
   getUser: async (req: Request, res: Response) => {
