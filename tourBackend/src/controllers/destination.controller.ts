@@ -31,14 +31,16 @@ export const destination = {
         image,
       });
 
-      res
-        .status(200)
-        .json({
-          message: "Destination Created Successfully!!",
-          data: Newdestination,
-        });
+      res.status(200).json({
+        message: "Destination Created Successfully!!",
+        data: Newdestination,
+      });
     } catch (error) {
       res.status(500).json({ message: "Internal Server error", error });
     }
   },
+
+  deleteDestination : async (req: Request, res: Response) => {
+
+  }
 };
