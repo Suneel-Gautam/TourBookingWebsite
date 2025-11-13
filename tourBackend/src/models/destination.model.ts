@@ -6,8 +6,9 @@ interface IDestination extends Document {
   location: string;
   budget: string;
   duration: string;
-  image: string;
-  description: string; 
+  image: string; // Cloudinary URL
+  public_id?: string; // Cloudinary public_id
+  description: string;
   capacity: string;
   createdDate: Date;
 }
@@ -34,8 +35,11 @@ const destinationSchema = new Schema<IDestination>({
     type: String,
     required: true,
   },
+  public_id: {
+    type: String, // store Cloudinary public_id
+  },
   description: {
-    type: String, 
+    type: String,
     required: true,
   },
   capacity: {

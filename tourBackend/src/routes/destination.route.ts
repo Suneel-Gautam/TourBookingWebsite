@@ -7,11 +7,15 @@ const router = Router();
 
 // add destinations
 
+router.get("/", destination.getAllDestination);
+
 router.post(
   "/add",
   destinationValidation.addDestinationValidation,
   upload.single("image"),
   destination.addDestination
 );
+
+router.delete("/delete/:id", destination.deleteDestination);
 
 export default router;

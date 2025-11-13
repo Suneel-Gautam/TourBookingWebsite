@@ -1,9 +1,16 @@
+import cloudinary from "../config/cloudinary.ts";
 import { Destination } from "../models/destination.model.ts";
 import type { Request, Response } from "express";
 
 export const destination = {
   getAllDestination: async (req: Request, res: Response) => {
     try {
+      const destination = await Destination.find();
+
+      res.status(200).json({
+        message: "Destination Fetched Sucessfully!!",
+        data: destination,
+      });
     } catch (error) {
       res.status(500).json({ message: "Internal Server error", error });
     }
@@ -20,6 +27,9 @@ export const destination = {
       if (!image) {
         return res.status(400).json({ message: "Image is Required" });
       }
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder : "destinations"
+      })
 
       const Newdestination = await Destination.create({
         tripname,
@@ -28,7 +38,8 @@ export const destination = {
         duration,
         description,
         capacity,
-        image,
+        image: result.secure_url,
+        public_id : result.public_id
       });
 
       res.status(200).json({
@@ -40,7 +51,27 @@ export const destination = {
     }
   },
 
-  deleteDestination : async (req: Request, res: Response) => {
+  deleteDestination: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
 
-  }
+      const destination = await Destination.findById(id);
+      if (!destination) {
+       return res.status(404).json({ message: "Destination not Found!!!" });
+      }
+
+      if (destination?.image) {
+        const publicId = destination.image.split("/").pop()?.split(".")[0];
+        if (publicId) {
+          await cloudinary.uploader.destroy(`destinations/${publicId}`);
+        }
+      }
+
+      await Destination.findByIdAndDelete(id);
+
+      res.status(200).json({ message: "Destination deleted Sucessfully!!!" });
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server error", error });
+    }
+  },
 };
