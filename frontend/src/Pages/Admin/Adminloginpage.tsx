@@ -1,7 +1,9 @@
 import React from "react";
 import { FiLock, FiPhone } from "react-icons/fi";
+import {  useNavigate } from "react-router-dom";
 
 const Adminloginpage: React.FC = () => {
+  const navigate = useNavigate()
   return (
     <div className="flex justify-center items-center h-screen bg-primary">
       <div className="max-w-xl w-full shadow-2xl bg-card rounded-lg px-12 py-8">
@@ -32,7 +34,9 @@ const Adminloginpage: React.FC = () => {
           </div>
 
           {/* button */}
-          <button className="bg-primary text-secondary font-semibold text-xl shadow-2xl py-2 rounded-lg mt-4 transition-all duration-200 ease-in-out hover:shadow-2xl hover:-translate-y-1">
+          <button className="bg-primary text-secondary font-semibold text-xl shadow-2xl py-2 rounded-lg mt-4 transition-all duration-200 ease-in-out hover:shadow-2xl hover:-translate-y-1"
+            onClick={() => navigate("/admin/dashboard")} 
+           >
             Continue
           </button>
         </div>

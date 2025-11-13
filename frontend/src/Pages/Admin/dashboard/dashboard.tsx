@@ -1,7 +1,13 @@
-import React from "react";
+import React from 'react'
+import AdminSlider from './Components/adminSlider'
 
-const dashboard: React.FC = () => {
-  return <div>dashboard</div>;
-};
+const Dashboardpage : React.FC = () => {
+  return (
+    <div>
+        <AdminSlider />
 
-export default dashboard;
+    </div>
+  )
+}
+
+export default Dashboardpage
